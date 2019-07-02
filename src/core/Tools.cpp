@@ -24,16 +24,22 @@
 #include "core/Translator.h"
 
 #include "git-info.h"
+#include <QBuffer>
+#include <QByteArray>
 #include <QCoreApplication>
 #include <QElapsedTimer>
-#include <QIODevice>
+#include <QImage>
 #include <QImageReader>
+#include <QImageReader>
+#include <QIODevice>
 #include <QLocale>
 #include <QRegularExpression>
 #include <QStringList>
 #include <QSysInfo>
 #include <QUuid>
 #include <cctype>
+#include <cmath>
+#include <limits>
 
 #ifdef Q_OS_WIN
 #include <windows.h> // for Sleep()
@@ -281,6 +287,51 @@ namespace Tools
         }
 
         return regex;
+    }
+
+    QByteArray imageToPngData(const QImage& image)
+    {
+        QByteArray imageData;
+        QBuffer buffer(&imageData);
+        buffer.open(QIODevice::WriteOnly);
+        // TODO: check !image.save()
+        image.save(&buffer, /*format*/ "PNG", /*quality*/ 0);
+        buffer.close();
+
+        return imageData;
+    }
+
+    QImage selectBestIcon(const QByteArray& imageData)
+    {
+        QByteArray nonConstimageData(imageData);
+        QBuffer buffer(&nonConstimageData);
+        buffer.open(QIODevice::ReadOnly);
+        QImageReader reader(&buffer);
+        // Attempts to find the best suited image for a 128 x 128 icon.
+        QImage bestIcon;
+        // An abstract error value that favors larger images over smaller ones.
+        int bestError = std::numeric_limits<int>::max();
+        while (reader.canRead()) {
+            QImage icon = reader.read();
+            int error = std::abs(icon.width() - 128) + std::abs(icon.height() - 128);
+            error += (icon.width() < 128 ? 1 : 0) + (icon.height() < 128 ? 1 : 0);
+            if (error < bestError) {
+                bestIcon = icon;
+                bestError = error;
+                if (icon.width() == 128 && icon.height() == 128)
+                    break;
+            }
+        }
+        buffer.close();
+
+        return bestIcon;
+    }
+
+    QImage scaleToIconSize(const QImage& image) {
+        if (image.width() <= 128 && image.height() <= 128) {
+            return image;
+        }
+        return image.scaled(QSize(128, 128), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
 
     QString uuidToHex(const QUuid& uuid)

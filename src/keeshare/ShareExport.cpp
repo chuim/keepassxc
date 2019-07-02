@@ -15,9 +15,24 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ShareExport.h"
+
+#include <QBuffer>
+#include <QByteArray>
+#include <QFile>
+#include <QFileInfo>
+#include <QIODevice>
+#include <QScopedPointer>
+#include <QSharedPointer>
+#include <QString>
+#include <QTextStream>
+#include <QuaZip>
+#include <QuaZipFile>
+#include <QuaZipNewInfo>
+
 #include "config-keepassx.h"
 #include "core/Group.h"
 #include "core/Metadata.h"
+#include "core/Tools.h"
 #include "format/KeePass2Writer.h"
 #include "keeshare/KeeShare.h"
 #include "keeshare/Signature.h"
@@ -78,7 +93,8 @@ namespace
             targetEntry->setUpdateTimeinfo(updateTimeinfo);
             const auto iconUuid = targetEntry->iconUuid();
             if (!iconUuid.isNull() && !targetMetadata->containsCustomIcon(iconUuid)) {
-                targetMetadata->addCustomIcon(iconUuid, sourceEntry->icon());
+                QByteArray iconData = Tools::imageToPngData(sourceEntry->icon());
+                targetMetadata->addCustomIcon(iconUuid, iconData);
             }
         }
 

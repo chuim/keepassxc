@@ -166,6 +166,11 @@ QImage Metadata::customIcon(const QUuid& uuid) const
     return m_customIcons.value(uuid);
 }
 
+QByteArray Metadata::customIconBytes(const QUuid& uuid) const
+{
+    return Tools::imageToPngData(customIcon(uuid));
+}
+
 QPixmap Metadata::customIconPixmap(const QUuid& uuid) const
 {
     QPixmap pixmap;
@@ -377,16 +382,18 @@ void Metadata::setProtectNotes(bool value)
     set(m_data.protectNotes, value);
 }
 
-void Metadata::addCustomIcon(const QUuid& uuid, const QImage& icon)
+void Metadata::addCustomIcon(const QUuid& uuid, const QByteArray& iconData)
 {
     Q_ASSERT(!uuid.isNull());
     Q_ASSERT(!m_customIcons.contains(uuid));
 
+    // TODO: Should we also attempt de-duping icons here?
+    QImage icon = Tools::scaleToIconSize(Tools::selectBestIcon(iconData));
     m_customIcons[uuid] = icon;
-    // reset cache in case there is also an icon with that uuid
+    // Reset cache in case there is also an icon with that uuid
     m_customIconCacheKeys[uuid] = QPixmapCache::Key();
     m_customIconScaledCacheKeys[uuid] = QPixmapCache::Key();
-    // remove all uuids to prevent duplicates in release mode
+    // Remove all uuids to prevent duplicates in release mode
     m_customIconsOrder.removeAll(uuid);
     m_customIconsOrder.append(uuid);
     // Associate image hash to uuid
@@ -394,20 +401,6 @@ void Metadata::addCustomIcon(const QUuid& uuid, const QImage& icon)
     m_customIconsHashes[hash] = uuid;
     Q_ASSERT(m_customIcons.count() == m_customIconsOrder.count());
     emit metadataModified();
-}
-
-void Metadata::addCustomIconScaled(const QUuid& uuid, const QImage& icon)
-{
-    QImage iconScaled;
-
-    // scale down to 128x128 if icon is larger
-    if (icon.width() > 128 || icon.height() > 128) {
-        iconScaled = icon.scaled(QSize(128, 128), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    } else {
-        iconScaled = icon;
-    }
-
-    addCustomIcon(uuid, iconScaled);
 }
 
 void Metadata::removeCustomIcon(const QUuid& uuid)
@@ -443,7 +436,7 @@ void Metadata::copyCustomIcons(const QSet<QUuid>& iconList, const Metadata* othe
         Q_ASSERT(otherMetadata->containsCustomIcon(uuid));
 
         if (!containsCustomIcon(uuid) && otherMetadata->containsCustomIcon(uuid)) {
-            addCustomIcon(uuid, otherMetadata->customIcon(uuid));
+            addCustomIcon(uuid, otherMetadata->customIconBytes(uuid));
         }
     }
 }

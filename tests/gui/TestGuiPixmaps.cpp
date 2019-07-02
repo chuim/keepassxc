@@ -19,6 +19,7 @@
 #include "TestGlobal.h"
 #include "core/DatabaseIcons.h"
 #include "core/Metadata.h"
+#include "core/Tools.h"
 #include "crypto/Crypto.h"
 
 void TestGuiPixmaps::initTestCase()
@@ -77,7 +78,7 @@ void TestGuiPixmaps::testEntryIcons()
     icon = QImage(2, 1, QImage::Format_RGB32);
     icon.setPixel(0, 0, qRgb(0, 0, 0));
     icon.setPixel(1, 0, qRgb(0, 0, 50));
-    db->metadata()->addCustomIcon(iconUuid, icon);
+    db->metadata()->addCustomIcon(iconUuid, Tools::imageToPngData(icon));
     entry->setIcon(iconUuid);
 
     image = entry->icon();
@@ -120,7 +121,7 @@ void TestGuiPixmaps::testGroupIcons()
     icon = QImage(2, 1, QImage::Format_RGB32);
     icon.setPixel(0, 0, qRgb(0, 0, 0));
     icon.setPixel(1, 0, qRgb(0, 0, 50));
-    db->metadata()->addCustomIcon(iconUuid, icon);
+    db->metadata()->addCustomIcon(iconUuid, Tools::imageToPngData(icon));
     group->setIcon(iconUuid);
 
     image = group->icon();

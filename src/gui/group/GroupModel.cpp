@@ -295,10 +295,11 @@ bool GroupModel::dropMimeData(const QMimeData* data,
 
             Database* sourceDb = dragEntry->group()->database();
             Database* targetDb = parentGroup->database();
-            QUuid customIcon = entry->iconUuid();
+            QUuid iconUuid = entry->iconUuid();
 
-            if (sourceDb != targetDb && !customIcon.isNull() && !targetDb->metadata()->containsCustomIcon(customIcon)) {
-                targetDb->metadata()->addCustomIcon(customIcon, sourceDb->metadata()->customIcon(customIcon));
+            if (sourceDb != targetDb && !iconUuid.isNull() && !targetDb->metadata()->containsCustomIcon(iconUuid)) {
+                QByteArray customIconData = sourceDb->metadata()->customIconBytes(iconUuid);
+                targetDb->metadata()->addCustomIcon(iconUuid, customIconData);
             }
 
             entry->setGroup(parentGroup);

@@ -27,6 +27,8 @@
 
 #include <algorithm>
 
+class QByteArray;
+class QImage;
 class QIODevice;
 class QRegularExpression;
 
@@ -47,6 +49,18 @@ namespace Tools
                                       bool useWildcards = false,
                                       bool exactMatch = false,
                                       bool caseSensitive = false);
+
+    // Converts an image into raw PNG bytes.
+    QByteArray imageToPngData(const QImage& image);
+
+    // Attempts to find the most suitable image for a 128x128 icon from the
+    // provided raw bytes from an image file, taking into account multiple
+    // layers.
+    QImage selectBestIcon(const QByteArray& imageData);
+
+    // Scales the image to the standard icon size of 128x128. Scaling is only
+    // performed if the image is larger than required.
+    QImage scaleToIconSize(const QImage& image);
 
     template <typename RandomAccessIterator, typename T>
     RandomAccessIterator binaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T& value)

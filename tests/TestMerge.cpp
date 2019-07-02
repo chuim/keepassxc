@@ -21,6 +21,7 @@
 
 #include "core/Merger.h"
 #include "core/Metadata.h"
+#include "core/Tools.h"
 #include "crypto/Crypto.h"
 
 #include <QSignalSpy>
@@ -999,7 +1000,7 @@ void TestMerge::testUpdateGroup()
     groupSourceInitial->setNotes("updated notes");
     QUuid customIconId = QUuid::createUuid();
     QImage customIcon;
-    dbSource->metadata()->addCustomIcon(customIconId, customIcon);
+    dbSource->metadata()->addCustomIcon(customIconId, Tools::imageToPngData(customIcon));
     groupSourceInitial->setIcon(customIconId);
 
     QPointer<Entry> entrySourceInitial = dbSource->rootGroup()->findEntryByPath("entry1");
@@ -1115,7 +1116,7 @@ void TestMerge::testMergeCustomIcons()
     QUuid customIconId = QUuid::createUuid();
     QImage customIcon;
 
-    dbSource->metadata()->addCustomIcon(customIconId, customIcon);
+    dbSource->metadata()->addCustomIcon(customIconId, Tools::imageToPngData(customIcon));
     // Sanity check.
     QVERIFY(dbSource->metadata()->containsCustomIcon(customIconId));
 
@@ -1140,8 +1141,8 @@ void TestMerge::testMergeDuplicateCustomIcons()
     QUuid customIconId = QUuid::createUuid();
     QImage customIcon;
 
-    dbSource->metadata()->addCustomIcon(customIconId, customIcon);
-    dbDestination->metadata()->addCustomIcon(customIconId, customIcon);
+    dbSource->metadata()->addCustomIcon(customIconId, Tools::imageToPngData(customIcon));
+    dbDestination->metadata()->addCustomIcon(customIconId, Tools::imageToPngData(customIcon));
     // Sanity check.
     QVERIFY(dbSource->metadata()->containsCustomIcon(customIconId));
     QVERIFY(dbDestination->metadata()->containsCustomIcon(customIconId));

@@ -22,6 +22,7 @@
 
 #include "core/Endian.h"
 #include "core/Metadata.h"
+#include "core/Tools.h"
 #include "format/KeePass2RandomStream.h"
 #include "streams/QtIOCompressor"
 
@@ -168,12 +169,7 @@ void KdbxXmlWriter::writeIcon(const QUuid& uuid, const QImage& icon)
 
     writeUuid("UUID", uuid);
 
-    QByteArray ba;
-    QBuffer buffer(&ba);
-    buffer.open(QIODevice::WriteOnly);
-    // TODO: check !icon.save()
-    icon.save(&buffer, "PNG");
-    buffer.close();
+    QByteArray ba = Tools::imageToPngData(icon);
     writeBinary("Data", ba);
 
     m_xml.writeEndElement();

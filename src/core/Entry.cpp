@@ -27,6 +27,7 @@
 #include "core/Tools.h"
 #include "totp/totp.h"
 
+#include <QByteArray>
 #include <QDir>
 #include <QRegularExpression>
 #include <utility>
@@ -1004,7 +1005,8 @@ void Entry::setGroup(Group* group)
             if (!iconUuid().isNull() && group->database()
                 && m_group->database()->metadata()->containsCustomIcon(iconUuid())
                 && !group->database()->metadata()->containsCustomIcon(iconUuid())) {
-                group->database()->metadata()->addCustomIcon(iconUuid(), icon());
+                QByteArray iconData = Tools::imageToPngData(icon());
+                group->database()->metadata()->addCustomIcon(iconUuid(), iconData);
             }
         }
     }

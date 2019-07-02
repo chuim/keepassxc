@@ -79,6 +79,7 @@ public:
     bool protectUrl() const;
     bool protectNotes() const;
     QImage customIcon(const QUuid& uuid) const;
+    QByteArray customIconBytes(const QUuid& uuid) const;
     QPixmap customIconPixmap(const QUuid& uuid) const;
     QPixmap customIconScaledPixmap(const QUuid& uuid) const;
     bool containsCustomIcon(const QUuid& uuid) const;
@@ -119,8 +120,7 @@ public:
     void setProtectPassword(bool value);
     void setProtectUrl(bool value);
     void setProtectNotes(bool value);
-    void addCustomIcon(const QUuid& uuid, const QImage& icon);
-    void addCustomIconScaled(const QUuid& uuid, const QImage& icon);
+    void addCustomIcon(const QUuid& uuid, const QByteArray& iconData);
     void removeCustomIcon(const QUuid& uuid);
     void copyCustomIcons(const QSet<QUuid>& iconList, const Metadata* otherMetadata);
     QUuid findCustomIcon(const QImage& candidate);

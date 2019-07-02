@@ -22,6 +22,8 @@
 #include "core/Entry.h"
 #include "core/Metadata.h"
 
+#include <QByteArray>
+
 Merger::Merger(const Database* sourceDb, Database* targetDb)
     : m_mode(Group::Default)
 {
@@ -615,8 +617,8 @@ Merger::ChangeList Merger::mergeMetadata(const MergeContext& context)
     const auto keys = sourceMetadata->customIcons().keys();
     for (QUuid customIconId : keys) {
         if (!targetMetadata->containsCustomIcon(customIconId)) {
-            QImage customIcon = sourceMetadata->customIcon(customIconId);
-            targetMetadata->addCustomIcon(customIconId, customIcon);
+            QByteArray customIconData = sourceMetadata->customIconBytes(customIconId);
+            targetMetadata->addCustomIcon(customIconId, customIconData);
             changes << tr("Adding missing icon %1").arg(QString::fromLatin1(customIconId.toRfc4122().toHex()));
         }
     }

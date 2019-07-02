@@ -25,6 +25,7 @@
 #include "core/Metadata.h"
 #include "core/Tools.h"
 
+#include <QByteArray>
 #include <QtConcurrent>
 
 const int Group::DefaultIconNumber = 48;
@@ -459,7 +460,8 @@ void Group::setParent(Group* parent, int index)
             // copy custom icon to the new database
             if (!iconUuid().isNull() && parent->m_db && m_db->metadata()->containsCustomIcon(iconUuid())
                 && !parent->m_db->metadata()->containsCustomIcon(iconUuid())) {
-                parent->m_db->metadata()->addCustomIcon(iconUuid(), icon());
+                QByteArray iconData = Tools::imageToPngData(icon());
+                parent->m_db->metadata()->addCustomIcon(iconUuid(), iconData);
             }
         }
         if (m_db != parent->m_db) {

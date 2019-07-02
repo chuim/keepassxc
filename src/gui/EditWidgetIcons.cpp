@@ -410,16 +410,12 @@ bool EditWidgetIcons::addCustomIcon(const QImage& icon)
 {
     bool added = false;
     if (m_db) {
-        // Don't add an icon larger than 128x128, but retain original size if smaller
-        auto scaledicon = icon;
-        if (icon.width() > 128 || icon.height() > 128) {
-            scaledicon = icon.scaled(128, 128);
-        }
-
-        QUuid uuid = m_db->metadata()->findCustomIcon(scaledicon);
+        // Scale to the standard icon size to allow searching for duplicates.
+        QImage scaledIcon = Tools::scaleToIconSize(icon);
+        QUuid uuid = m_db->metadata()->findCustomIcon(scaledIcon);
         if (uuid.isNull()) {
             uuid = QUuid::createUuid();
-            m_db->metadata()->addCustomIcon(uuid, scaledicon);
+            m_db->metadata()->addCustomIcon(uuid, Tools::imageToPngData(scaledIcon));
             m_customIconModel->setIcons(m_db->metadata()->customIconsScaledPixmaps(),
                                         m_db->metadata()->customIconsOrder());
             added = true;
